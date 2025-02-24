@@ -4,7 +4,7 @@ use rodio::Source;
 
 /// An infinite sine wave oscillator with changeable frequency
 pub struct SineOsc {
-    freq: f32,
+    pub freq: f32,
     phase: f32
 }
 
@@ -37,7 +37,7 @@ impl Iterator for SineOsc {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.phase += 2. * PI * self.freq / 4800.;
+        self.phase += 2. * PI * self.freq / (self.sample_rate() as f32);
         
         while self.phase > 2. * PI {
             self.phase -= 2. * PI;
