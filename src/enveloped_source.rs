@@ -1,13 +1,13 @@
 use rodio::{source, Source};
 use crate::{controllable_source::{ControllableSource, KeyPress}, osc::SineOsc, utils::{lerp, midi_to_hz}};
 
-struct EnvelopedSine {
+pub struct EnvelopedSource<T: ControllableSource> {
     a: f32,
     d: f32,
     s: f32,
     r: f32,
     state: EnvState,
-    source: SineOsc
+    source: T
 }
 
 enum EnvState {
@@ -16,18 +16,19 @@ enum EnvState {
     Releasing(f32)
 }
 
-impl ControllableSource for EnvelopedSine {
+impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
     fn start_note(&mut self, key_press: KeyPress) {
-        self.source.freq = midi_to_hz(key_press.note);
+        self.source.start_note(key_press);
         self.state = EnvState::Playing(0.);
     }
 
     fn stop_note(&mut self) {
+        self.source.stop_note();
         self.state = EnvState::Off;
     }
 }
 
-impl Source for EnvelopedSine {
+impl<T: ControllableSource> Source for EnvelopedSource<T> {
     fn current_frame_len(&self) -> Option<usize> {
         self.source.current_frame_len()
     }
@@ -45,7 +46,7 @@ impl Source for EnvelopedSine {
     }
 }
 
-impl Iterator for EnvelopedSine {
+impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {

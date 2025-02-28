@@ -2,15 +2,29 @@ use std::f32::consts::PI;
 
 use rodio::Source;
 
+use crate::{controllable_source::{ControllableSource, KeyPress}, utils::midi_to_hz};
+
 /// An infinite sine wave oscillator with changeable frequency
 pub struct SineOsc {
     pub freq: f32,
-    phase: f32
+    phase: f32,
+    volume: f32
 }
 
 impl SineOsc {
     fn new(freq: f32) -> SineOsc {
-        SineOsc { freq, phase: 0. }
+        SineOsc { freq, phase: 0., volume: 0. }
+    }
+}
+
+impl ControllableSource for SineOsc {
+    fn start_note(&mut self, key_press: KeyPress) {
+        self.freq = midi_to_hz(key_press.note);
+        self.volume = key_press.velocity.as_int() as f32;
+    }
+
+    fn stop_note(&mut self) {
+        self.volume = 0.;
     }
 }
 
@@ -43,6 +57,6 @@ impl Iterator for SineOsc {
             self.phase -= 2. * PI;
         }
 
-        return Some(self.phase.sin());
+        return Some(self.phase.sin() * self.volume);
     }
 }
