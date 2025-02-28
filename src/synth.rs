@@ -1,7 +1,10 @@
-use midir::MidiInputConnection;
+use std::error::Error;
+
+use midir::{ConnectError, ConnectErrorKind, MidiInput, MidiInputConnection};
+use midly::{live::LiveEvent, MidiMessage};
 use rodio::{OutputStream, OutputStreamHandle};
 
-use crate::{enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
+use crate::{controllable_source::{self, ControllableSource, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
 
 pub struct Synth {
     source: ThreadsafeControllable<EnvelopedSource<SineOsc>>,
@@ -11,10 +14,43 @@ pub struct Synth {
 }
 
 impl Synth {
-    fn connect_to_default_audio(&mut self) -> Result<(), String> {
-        todo!()
+    fn connect_to_default_audio(&mut self) -> Result<(), Box<dyn Error>> {
+        let (stream, handle) = OutputStream::try_default()?;
+        (self.output_stream, self.output_handle) = (Some(stream), Some(handle));
+        self.output_handle.as_ref().unwrap().play_raw(self.source.clone())?;
+        Ok(())
     }
-    fn connect_to_default_midi(&mut self) -> Result<(), String> {
-        todo!()
+
+    fn connect_to_default_midi(&mut self) -> Result<(), Box<dyn Error>> {
+        let midi_in = MidiInput::new("synth_client")?;
+        let ports = midi_in.ports();
+        if ports.is_empty() {
+            return Err(Box::new(ConnectError::new(ConnectErrorKind::InvalidPort, "no midi device connected")));
+        }
+
+        let mut callback_src = self.source.clone();
+        let connection = midi_in.connect(
+            &ports[0],
+            "synth_port",
+            move |_timestamp, msg, _data|{
+                midi_handler(&mut callback_src, msg);
+            },
+            ()
+        )?;
+        self.midi_connection = Some(connection);
+        
+        Ok(())
+    }
+}
+
+fn midi_handler(controllable_source: &mut impl ControllableSource, raw_message: &[u8]) {
+    let message = LiveEvent::parse(raw_message).unwrap();
+    
+    if let LiveEvent::Midi{channel: _, message} = message {
+        match message {
+            MidiMessage::NoteOff {key, vel} => controllable_source.start_note(KeyPress{note: key, velocity: vel}),
+            MidiMessage::NoteOn {key, vel} => controllable_source.start_note(KeyPress{note: key, velocity: vel}),
+            _ => ()
+        }
     }
 }

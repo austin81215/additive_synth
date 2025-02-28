@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use rodio::{source, Source};
+use rodio::Source;
 
 use crate::controllable_source::ControllableSource;
 
@@ -41,5 +41,11 @@ impl<T: ControllableSource> Iterator for ThreadsafeControllable<T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.source.lock().unwrap().next()
+    }
+}
+
+impl<T: ControllableSource> Clone for ThreadsafeControllable<T> {
+    fn clone(&self) -> Self {
+        Self {source: self.source.clone()}
     }
 }
