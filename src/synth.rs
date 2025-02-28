@@ -4,16 +4,25 @@ use midir::{ConnectError, ConnectErrorKind, MidiInput, MidiInputConnection};
 use midly::{live::LiveEvent, MidiMessage};
 use rodio::{OutputStream, OutputStreamHandle};
 
-use crate::{controllable_source::{self, ControllableSource, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
+use crate::{controllable_source::{ControllableSource, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
 
 pub struct Synth {
-    source: ThreadsafeControllable<EnvelopedSource<SineOsc>>,
+    pub source: ThreadsafeControllable<EnvelopedSource<SineOsc>>,
     output_stream: Option<OutputStream>,
     output_handle: Option<OutputStreamHandle>,
     midi_connection: Option<MidiInputConnection<()>>
 }
 
 impl Synth {
+    fn new() -> Self {
+        Synth{
+            source: ThreadsafeControllable::new(EnvelopedSource::new(SineOsc::new(440.))),
+            output_stream: None,
+            output_handle: None,
+            midi_connection: None
+        }
+    }
+
     fn connect_to_default_audio(&mut self) -> Result<(), Box<dyn Error>> {
         let (stream, handle) = OutputStream::try_default()?;
         (self.output_stream, self.output_handle) = (Some(stream), Some(handle));

@@ -12,8 +12,8 @@ pub struct SineOsc {
 }
 
 impl SineOsc {
-    fn new(freq: f32) -> SineOsc {
-        SineOsc { freq, phase: 0., volume: 0. }
+    pub fn new(freq: f32) -> SineOsc {
+        SineOsc{freq, phase: 0., volume: 0.}
     }
 }
 

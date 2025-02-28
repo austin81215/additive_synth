@@ -8,6 +8,12 @@ pub struct ThreadsafeControllable<T: ControllableSource> {
     pub source: Arc<Mutex<T>>
 }
 
+impl<T: ControllableSource> ThreadsafeControllable<T>  {
+    pub fn new(source: T) -> Self {
+        ThreadsafeControllable{source: Arc::new(Mutex::new(source))}
+    }
+}
+
 impl<T: ControllableSource> ControllableSource for ThreadsafeControllable<T> {
     fn start_note(&mut self, key_press: crate::controllable_source::KeyPress) {
         self.source.lock().unwrap().start_note(key_press);

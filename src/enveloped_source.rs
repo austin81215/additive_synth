@@ -1,19 +1,25 @@
-use rodio::{source, Source};
-use crate::{controllable_source::{ControllableSource, KeyPress}, osc::SineOsc, utils::{lerp, midi_to_hz}};
+use rodio::Source;
+use crate::{controllable_source::{ControllableSource, KeyPress}, utils::lerp};
 
 pub struct EnvelopedSource<T: ControllableSource> {
-    a: f32,
-    d: f32,
-    s: f32,
-    r: f32,
+    pub a: f32,
+    pub d: f32,
+    pub s: f32,
+    pub r: f32,
     state: EnvState,
-    source: T
+    pub source: T
 }
 
 enum EnvState {
     Off,
     Playing(f32),
     Releasing(f32)
+}
+
+impl<T: ControllableSource> EnvelopedSource<T> {
+    pub fn new(source: T) -> Self {
+        EnvelopedSource{ a: 0., d: 0., s: 1., r: 0., state: EnvState::Off, source: source }
+    }
 }
 
 impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
