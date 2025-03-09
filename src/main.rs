@@ -4,7 +4,9 @@ mod enveloped_source;
 mod utils;
 mod threadsafe_controllable;
 mod synth;
+mod view;
 
 fn main() {
-    println!("Hello, world!");
+    iced::run("additive synth", view::update, view::view)
+        .expect("failed to start the gui");
 }

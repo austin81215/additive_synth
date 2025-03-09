@@ -63,3 +63,12 @@ fn midi_handler(controllable_source: &mut impl ControllableSource, raw_message: 
         }
     }
 }
+
+impl Default for Synth {
+    fn default() -> Self {
+        let mut s = Self::new();
+        s.connect_to_default_audio().expect("could not connect to default audio");
+        s.connect_to_default_midi().expect("could not connect to default midi");
+        return s;
+    }
+}
