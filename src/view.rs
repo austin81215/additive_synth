@@ -14,10 +14,10 @@ pub fn view(synth: &Synth) -> Column<Message> {
     // TODO: need a better way to get synth components
     let env = synth.source.source.lock().unwrap(); 
     column![
-        slider(0.0..=1., env.a, Message::AChanged).step(0.05),
-        slider(0.0..=1., env.d, Message::DChanged).step(0.05),
+        slider(0.0..=5., env.a, Message::AChanged).step(0.05),
+        slider(0.0..=5., env.d, Message::DChanged).step(0.05),
         slider(0.0..=1., env.s, Message::SChanged).step(0.05),
-        slider(0.0..=1., env.r, Message::RChanged).step(0.05),
+        slider(0.0..=5., env.r, Message::RChanged).step(0.05),
     ].into()
 }
 
