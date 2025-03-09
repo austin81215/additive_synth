@@ -1,3 +1,4 @@
+use midly::num::u7;
 use rodio::Source;
 use crate::{controllable_source::{ControllableSource, KeyPress}, utils::lerp};
 
@@ -7,7 +8,8 @@ pub struct EnvelopedSource<T: ControllableSource> {
     pub s: f32,
     pub r: f32,
     state: EnvState,
-    pub source: T
+    pub source: T,
+    current_note: u7,
 }
 
 enum EnvState {
@@ -18,7 +20,7 @@ enum EnvState {
 
 impl<T: ControllableSource> EnvelopedSource<T> {
     pub fn new(source: T) -> Self {
-        EnvelopedSource{ a: 0., d: 0., s: 1., r: 0., state: EnvState::Off, source: source }
+        EnvelopedSource{ a: 0., d: 0., s: 1., r: 0., state: EnvState::Off, source: source, current_note: u7::new(0) }
     }
 
     fn amplitude(&self) -> f32{
@@ -34,13 +36,16 @@ impl<T: ControllableSource> EnvelopedSource<T> {
 
 impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
     fn start_note(&mut self, key_press: KeyPress) {
+        self.current_note = key_press.note;
         self.source.start_note(key_press);
         self.state = EnvState::Playing(0.);
     }
 
-    fn stop_note(&mut self) {
-        self.source.stop_note();
-        self.state = EnvState::Releasing{t: 0., level_reached: self.amplitude()};
+    fn stop_note(&mut self, note: u7) {
+        if self.current_note == note {
+            self.source.stop_note(note);
+            self.state = EnvState::Releasing{t: 0., level_reached: self.amplitude()};
+        }
     }
 }
 
@@ -80,8 +85,6 @@ impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
                 EnvState::Off
             }
         }
-
-        println!("{}", self.amplitude());
 
         return match self.source.next() { // multiply source by amplitude
             Some(sample) => Some(sample  * self.amplitude()),

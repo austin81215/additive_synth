@@ -54,10 +54,10 @@ impl Synth {
 
 fn midi_handler(controllable_source: &mut impl ControllableSource, raw_message: &[u8]) {
     let message = LiveEvent::parse(raw_message).unwrap();
-    
+
     if let LiveEvent::Midi{channel: _, message} = message {
         match message {
-            MidiMessage::NoteOff {key: _, vel: _} => controllable_source.stop_note(),
+            MidiMessage::NoteOff {key, vel: _} => controllable_source.stop_note(key),
             MidiMessage::NoteOn {key, vel} => controllable_source.start_note(KeyPress{note: key, velocity: vel}),
             _ => ()
         }

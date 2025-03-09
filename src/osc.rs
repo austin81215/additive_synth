@@ -1,5 +1,6 @@
 use std::f32::consts::PI;
 
+use midly::num::u7;
 use rodio::Source;
 
 use crate::{controllable_source::{ControllableSource, KeyPress}, utils::midi_to_hz};
@@ -23,7 +24,7 @@ impl ControllableSource for SineOsc {
         self.volume = key_press.velocity.as_int() as f32;
     }
 
-    fn stop_note(&mut self) {}
+    fn stop_note(&mut self, _note: u7) {}
 }
 
 impl Source for SineOsc {

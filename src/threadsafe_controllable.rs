@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use midly::num::u7;
 use rodio::Source;
 
 use crate::controllable_source::ControllableSource;
@@ -19,8 +20,8 @@ impl<T: ControllableSource> ControllableSource for ThreadsafeControllable<T> {
         self.source.lock().unwrap().start_note(key_press);
     }
 
-    fn stop_note(&mut self) {
-        self.source.lock().unwrap().stop_note();
+    fn stop_note(&mut self, note: u7) {
+        self.source.lock().unwrap().stop_note(note);
     }
 }
 
