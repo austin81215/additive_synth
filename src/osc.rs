@@ -23,9 +23,7 @@ impl ControllableSource for SineOsc {
         self.volume = key_press.velocity.as_int() as f32;
     }
 
-    fn stop_note(&mut self) {
-        self.volume = 0.;
-    }
+    fn stop_note(&mut self) {}
 }
 
 impl Source for SineOsc {

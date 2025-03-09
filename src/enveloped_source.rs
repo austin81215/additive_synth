@@ -30,7 +30,7 @@ impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
 
     fn stop_note(&mut self) {
         self.source.stop_note();
-        self.state = EnvState::Off;
+        self.state = EnvState::Releasing(0.);
     }
 }
 
@@ -59,7 +59,7 @@ impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
         let amplitude = match self.state { // use position in envelope to find amplitude
             EnvState::Off => 0.,
             EnvState::Playing(t) if t <= self.a => lerp(t, 0., self.a, 0., 1.),
-            EnvState::Playing(t) if t <= self.d => lerp(t, self.a, self.d, 1., self.s),
+            EnvState::Playing(t) if t <= self.a + self.d => lerp(t, self.a, self.a + self.d, 1., self.s),
             EnvState::Playing(_) => self.s,
             EnvState::Releasing(t) => lerp(t, 0., self.r, self.s, 0.),
         };
@@ -68,7 +68,12 @@ impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
             self.state = EnvState::Playing(t + 1. / (self.sample_rate() as f32));
         }
         else if let EnvState::Releasing(t) = self.state { 
-            self.state = EnvState::Releasing(t + 1. / (self.sample_rate() as f32));
+            self.state = if t <= self.r {
+                EnvState::Releasing(t + 1. / (self.sample_rate() as f32))
+            }
+            else {
+                EnvState::Off
+            }
         }
 
         return match self.source.next() { // multiply source by amplitude

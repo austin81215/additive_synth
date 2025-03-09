@@ -4,6 +4,7 @@ pub fn midi_to_hz(midi_num: u7) -> f32 {
     440. * (2_f32).powf((midi_num.as_int() as i8 - 69) as f32/12.)
 }
 
+#[allow(dead_code)]
 pub fn hz_to_midi(hz: f32) -> u7 {
     u7::new((12. * (hz / 440.).log2() + 69.) as u8)
 }
