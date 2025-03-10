@@ -14,7 +14,7 @@ pub struct EnvelopedSource<T: ControllableSource> {
 
 enum EnvState {
     Off,
-    Playing(f32),
+    Playing{t: f32, start_level: f32},
     Releasing{t: f32, start_level: f32}
 }
 
@@ -33,9 +33,9 @@ impl<T: ControllableSource> EnvelopedSource<T> {
     fn amplitude(&self) -> f32{
         match self.state { // use position in envelope to find amplitude
             EnvState::Off => 0.,
-            EnvState::Playing(t) if t <= self.a => lerp(t, 0., self.a, 0., 1.),
-            EnvState::Playing(t) if t <= self.a + self.d => lerp(t, self.a, self.a + self.d, 1., self.s),
-            EnvState::Playing(_) => self.s,
+            EnvState::Playing{t, start_level} if t <= self.a => lerp(t, 0., self.a, start_level, 1.),
+            EnvState::Playing{t, start_level: _} if t <= self.a + self.d => lerp(t, self.a, self.a + self.d, 1., self.s),
+            EnvState::Playing{t: _, start_level: _} => self.s,
             EnvState::Releasing{t, start_level: level_reached} => lerp(t, 0., self.r, level_reached, 0.),
         }
     }
@@ -43,18 +43,27 @@ impl<T: ControllableSource> EnvelopedSource<T> {
 
 impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
     fn start_note(&mut self, key_press: KeyPress) {
-        // implements legato to reduce popping
-        if let EnvState::Off = self.state { 
-            self.state = EnvState::Playing(0.);
-            self.source.start_note(key_press);
-            self.current_note = key_press;
-        }
-        else {
-            self.source.start_note(KeyPress { 
-                note: key_press.note, 
-                velocity: self.current_note.velocity 
-            });
-            self.current_note.note = key_press.note;
+        match self.state {
+            EnvState::Off => {
+                self.state = EnvState::Playing { t: 0., start_level: 0. };
+                self.source.start_note(key_press);
+                self.current_note = key_press;
+            },
+            EnvState::Playing { t: _, start_level: _ } => {
+                self.source.start_note(KeyPress { 
+                    note: key_press.note, 
+                    velocity: self.current_note.velocity 
+                });
+                self.current_note.note = key_press.note;
+            },
+            EnvState::Releasing { t: _, start_level: _ } => {
+                self.source.start_note(KeyPress { 
+                    note: key_press.note, 
+                    velocity: self.current_note.velocity 
+                });
+                self.current_note.note = key_press.note;
+                self.state = EnvState::Playing { t: 0., start_level: self.amplitude() }
+            },
         }
     }
 
@@ -88,14 +97,17 @@ impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let EnvState::Playing(t) = self.state { // increment t
-            self.state = EnvState::Playing(t + 1. / (self.sample_rate() as f32));
+        if let EnvState::Playing{t, start_level} = self.state { // increment t
+            self.state = EnvState::Playing{
+                t: t + 1. / (self.sample_rate() as f32), 
+                start_level: start_level
+            };
         }
-        else if let EnvState::Releasing{t, start_level: level_reached} = self.state { 
+        else if let EnvState::Releasing{t, start_level} = self.state { 
             self.state = if t <= self.r {
                 EnvState::Releasing{
                     t: t + 1. / (self.sample_rate() as f32),
-                    start_level: level_reached
+                    start_level: start_level
                 }
             }
             else {
