@@ -6,6 +6,7 @@ use rodio::Source;
 use crate::{controllable_source::{ControllableSource, KeyPress}, utils::midi_to_hz};
 
 /// An infinite sine wave oscillator with changeable frequency
+#[derive(Clone, Copy)]
 pub struct SineOsc {
     pub freq: f32,
     phase: f32,
@@ -15,6 +16,11 @@ pub struct SineOsc {
 impl SineOsc {
     pub fn new(freq: f32) -> SineOsc {
         SineOsc{freq, phase: 0., volume: 0.}
+    }
+
+    pub fn start_freq(&mut self, freq: f32, velocity: u7) {
+        self.freq = freq;
+        self.volume = velocity.as_int() as f32;
     }
 }
 
