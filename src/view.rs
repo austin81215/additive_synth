@@ -1,6 +1,4 @@
-use std::fmt::format;
-
-use iced::widget::{column, row, slider, text, vertical_slider, Column, Row};
+use iced::widget::{column, row, text, vertical_slider, Row};
 
 use crate::synth::Synth;
 

@@ -6,6 +6,7 @@ pub trait ControllableSource: Source + Iterator<Item = f32> {
     fn stop_note(&mut self, note: u7);
 }
 
+#[derive(Clone, Copy)]
 pub struct KeyPress {
     pub note: u7,
     pub velocity: u7
