@@ -1,8 +1,10 @@
 use midly::num::u7;
 use rodio::Source;
-use crate::{controllable_source::{ControllableSource, KeyPress}, utils::lerp};
+use crate::{controllable_source::{MidiControllable, KeyPress}, utils::lerp};
 
-pub struct EnvelopedSource<T: ControllableSource> {
+pub struct EnvelopedSource<T> where 
+T: MidiControllable + Source, 
+T: Iterator<Item = f32> {
     pub a: f32,
     pub d: f32,
     pub s: f32,
@@ -18,7 +20,9 @@ enum EnvState {
     Releasing{t: f32, start_level: f32}
 }
 
-impl<T: ControllableSource> EnvelopedSource<T> {
+impl<T> EnvelopedSource<T> where 
+T: MidiControllable + Source, 
+T: Iterator<Item = f32> {
     pub fn new(source: T) -> Self {
         EnvelopedSource{a: 0.,
             d: 0., 
@@ -41,7 +45,9 @@ impl<T: ControllableSource> EnvelopedSource<T> {
     }
 }
 
-impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
+impl<T> MidiControllable for EnvelopedSource<T> where 
+T: MidiControllable + Source, 
+T: Iterator<Item = f32> {
     fn start_note(&mut self, key_press: KeyPress) {
         match self.state {
             EnvState::Off => {
@@ -75,7 +81,9 @@ impl<T: ControllableSource> ControllableSource for EnvelopedSource<T> {
     }
 }
 
-impl<T: ControllableSource> Source for EnvelopedSource<T> {
+impl<T> Source for EnvelopedSource<T> where 
+T: MidiControllable + Source, 
+T: Iterator<Item = f32>  {
     fn current_frame_len(&self) -> Option<usize> {
         self.source.current_frame_len()
     }
@@ -93,7 +101,9 @@ impl<T: ControllableSource> Source for EnvelopedSource<T> {
     }
 }
 
-impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
+impl<T> Iterator for EnvelopedSource<T> where 
+T: MidiControllable + Source, 
+T: Iterator<Item = f32>  {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -116,7 +126,7 @@ impl<T: ControllableSource> Iterator for EnvelopedSource<T> {
         }
 
         return match self.source.next() { // multiply source by amplitude
-            Some(sample) => Some(sample  * self.amplitude()),
+            Some(sample) => Some(sample * self.amplitude()),
             None => None,
         }
     }

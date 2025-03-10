@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use midly::num::u7;
 use rodio::Source;
 
-use crate::{controllable_source::{ControllableSource, KeyPress}, utils::midi_to_hz};
+use crate::{controllable_source::{MidiControllable, KeyPress}, utils::midi_to_hz};
 
 /// An infinite sine wave oscillator with changeable frequency
 #[derive(Clone, Copy)]
@@ -24,7 +24,7 @@ impl SineOsc {
     }
 }
 
-impl ControllableSource for SineOsc {
+impl MidiControllable for SineOsc {
     fn start_note(&mut self, key_press: KeyPress) {
         self.freq = midi_to_hz(key_press.note);
         self.volume = key_press.velocity.as_int() as f32;

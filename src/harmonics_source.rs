@@ -1,7 +1,7 @@
 use midly::num::u7;
 use rodio::Source;
 
-use crate::{controllable_source::{ControllableSource, KeyPress}, osc::SineOsc, utils::midi_to_hz};
+use crate::{controllable_source::{MidiControllable, KeyPress}, osc::SineOsc, utils::midi_to_hz};
 
 pub struct HarmonicsSource {
     harmonics: Vec<(SineOsc, f32)>
@@ -21,7 +21,7 @@ impl HarmonicsSource {
     }
 }
 
-impl ControllableSource for HarmonicsSource {
+impl MidiControllable for HarmonicsSource {
     fn start_note(&mut self, key_press: KeyPress) {
         for (i, (osc, _vol)) in self.harmonics.iter_mut().enumerate() {
             let freq = midi_to_hz(key_press.note) * (i as f32 + 1.);

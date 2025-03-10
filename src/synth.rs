@@ -4,7 +4,7 @@ use midir::{ConnectError, ConnectErrorKind, MidiInput, MidiInputConnection};
 use midly::{live::LiveEvent, MidiMessage};
 use rodio::{OutputStream, OutputStreamHandle};
 
-use crate::{controllable_source::{ControllableSource, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
+use crate::{controllable_source::{MidiControllable, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
 
 pub struct Synth {
     pub source: ThreadsafeControllable<EnvelopedSource<SineOsc>>,
@@ -52,7 +52,7 @@ impl Synth {
     }
 }
 
-fn midi_handler(controllable_source: &mut impl ControllableSource, raw_message: &[u8]) {
+fn midi_handler(controllable_source: &mut impl MidiControllable, raw_message: &[u8]) {
     let message = LiveEvent::parse(raw_message).unwrap();
 
     if let LiveEvent::Midi{channel: _, message} = message {

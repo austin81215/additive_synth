@@ -3,19 +3,25 @@ use std::sync::{Arc, Mutex};
 use midly::num::u7;
 use rodio::Source;
 
-use crate::controllable_source::ControllableSource;
+use crate::controllable_source::MidiControllable;
 
-pub struct ThreadsafeControllable<T: ControllableSource> {
+pub struct ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     pub source: Arc<Mutex<T>>
 }
 
-impl<T: ControllableSource> ThreadsafeControllable<T>  {
+impl<T> ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     pub fn new(source: T) -> Self {
         ThreadsafeControllable{source: Arc::new(Mutex::new(source))}
     }
 }
 
-impl<T: ControllableSource> ControllableSource for ThreadsafeControllable<T> {
+impl<T> MidiControllable for ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     fn start_note(&mut self, key_press: crate::controllable_source::KeyPress) {
         self.source.lock().unwrap().start_note(key_press);
     }
@@ -25,7 +31,9 @@ impl<T: ControllableSource> ControllableSource for ThreadsafeControllable<T> {
     }
 }
 
-impl<T: ControllableSource> Source for ThreadsafeControllable<T> {
+impl<T> Source for ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     fn current_frame_len(&self) -> Option<usize> {
         self.source.lock().unwrap().current_frame_len()
     }
@@ -43,7 +51,9 @@ impl<T: ControllableSource> Source for ThreadsafeControllable<T> {
     }
 }
 
-impl<T: ControllableSource> Iterator for ThreadsafeControllable<T> {
+impl<T> Iterator for ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -51,7 +61,9 @@ impl<T: ControllableSource> Iterator for ThreadsafeControllable<T> {
     }
 }
 
-impl<T: ControllableSource> Clone for ThreadsafeControllable<T> {
+impl<T> Clone for ThreadsafeControllable<T> where
+T: MidiControllable + Source,
+T: Iterator<Item = f32> {
     fn clone(&self) -> Self {
         Self {source: self.source.clone()}
     }
