@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use midly::num::u7;
 use rodio::Source;
 
-use crate::{controllable_source::{MidiControllable, KeyPress}, utils::midi_to_hz};
+use crate::{midi_controllable::{MidiControllable, KeyPress}, utils::midi_to_hz};
 
 /// An infinite sine wave oscillator with changeable frequency
 #[derive(Clone, Copy)]

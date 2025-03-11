@@ -1,22 +1,22 @@
 use midly::num::u7;
 use rodio::Source;
 
-use crate::{controllable_source::{MidiControllable, KeyPress}, osc::SineOsc, utils::midi_to_hz};
+use crate::{midi_controllable::{MidiControllable, KeyPress}, osc::SineOsc, utils::midi_to_hz};
 
 pub struct HarmonicsSource {
     harmonics: Vec<(SineOsc, f32)>
 }
 
 impl HarmonicsSource {
-    fn new(num_harmonics: usize) -> Self {
+    pub fn new(num_harmonics: usize) -> Self {
         HarmonicsSource { harmonics: vec![(SineOsc::new(440.), 1.); num_harmonics] }
     }
 
-    fn get_harmonic(&self, i: usize) -> f32{
+    pub fn get_harmonic(&self, i: usize) -> f32{
         self.harmonics[i].1
     }
 
-    fn set_harmonic(&mut self, i: usize, vol: f32) {
+    pub fn set_harmonic(&mut self, i: usize, vol: f32) {
         self.harmonics[i].1 = vol;
     }
 }

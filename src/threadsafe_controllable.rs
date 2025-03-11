@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use midly::num::u7;
 use rodio::Source;
 
-use crate::controllable_source::MidiControllable;
+use crate::midi_controllable::MidiControllable;
 
 pub struct ThreadsafeControllable<T> where
 T: MidiControllable + Source,
@@ -22,7 +22,7 @@ T: Iterator<Item = f32> {
 impl<T> MidiControllable for ThreadsafeControllable<T> where
 T: MidiControllable + Source,
 T: Iterator<Item = f32> {
-    fn start_note(&mut self, key_press: crate::controllable_source::KeyPress) {
+    fn start_note(&mut self, key_press: crate::midi_controllable::KeyPress) {
         self.source.lock().unwrap().start_note(key_press);
     }
 

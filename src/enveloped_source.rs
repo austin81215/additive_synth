@@ -1,6 +1,6 @@
 use midly::num::u7;
 use rodio::Source;
-use crate::{controllable_source::{MidiControllable, KeyPress}, utils::lerp};
+use crate::{midi_controllable::{MidiControllable, KeyPress}, utils::lerp};
 
 pub struct EnvelopedSource<T> where 
 T: MidiControllable + Source, 

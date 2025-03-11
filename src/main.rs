@@ -1,5 +1,5 @@
 mod osc;
-mod controllable_source;
+mod midi_controllable;
 mod enveloped_source;
 mod utils;
 mod threadsafe_controllable;

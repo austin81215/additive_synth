@@ -4,10 +4,10 @@ use midir::{ConnectError, ConnectErrorKind, MidiInput, MidiInputConnection};
 use midly::{live::LiveEvent, MidiMessage};
 use rodio::{OutputStream, OutputStreamHandle};
 
-use crate::{controllable_source::{MidiControllable, KeyPress}, enveloped_source::EnvelopedSource, osc::SineOsc, threadsafe_controllable::ThreadsafeControllable};
+use crate::{enveloped_source::EnvelopedSource, harmonics_source::HarmonicsSource, midi_controllable::{KeyPress, MidiControllable}, threadsafe_controllable::ThreadsafeControllable};
 
 pub struct Synth {
-    pub source: ThreadsafeControllable<EnvelopedSource<SineOsc>>,
+    pub source: ThreadsafeControllable<EnvelopedSource<HarmonicsSource>>,
     output_stream: Option<OutputStream>,
     output_handle: Option<OutputStreamHandle>,
     midi_connection: Option<MidiInputConnection<()>>
@@ -16,7 +16,7 @@ pub struct Synth {
 impl Synth {
     fn new() -> Self {
         Synth{
-            source: ThreadsafeControllable::new(EnvelopedSource::new(SineOsc::new(440.))),
+            source: ThreadsafeControllable::new(EnvelopedSource::new(HarmonicsSource::new(5))),
             output_stream: None,
             output_handle: None,
             midi_connection: None

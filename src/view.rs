@@ -1,4 +1,4 @@
-use iced::widget::{column, row, text, vertical_slider, Row};
+use iced::widget::{column, row, text, vertical_slider, Column, Row};
 
 use crate::synth::Synth;
 
@@ -14,22 +14,10 @@ pub fn view(synth: &Synth) -> Row<Message> {
     // TODO: need a better way to get synth components
     let env = synth.source.source.lock().unwrap(); 
     row![
-        column![
-            vertical_slider(0.0..=1., env.a, Message::AChanged).height(200).step(0.01),
-            text(format!("A: {:.2}", env.a))
-        ],
-        column![
-            vertical_slider(0.0..=1., env.d, Message::DChanged).height(200).step(0.01),
-            text(format!("D: {:.2}", env.d))
-        ],
-        column![
-            vertical_slider(0.0..=1., env.s, Message::SChanged).height(200).step(0.01),
-            text(format!("S: {:.2}", env.s))
-        ],
-        column![
-            vertical_slider(0.0..=1., env.r, Message::RChanged).height(200).step(0.01),
-            text(format!("R: {:.2}", env.r))
-        ],
+        env_slider(env.a, Message::AChanged, "A"),
+        env_slider(env.d, Message::DChanged, "D"),
+        env_slider(env.s, Message::SChanged, "S"),
+        env_slider(env.r, Message::RChanged, "R"),
     ].spacing(50).into()
 }
 
@@ -41,4 +29,11 @@ pub fn update(synth: &mut Synth, message: Message) {
         Message::SChanged(val) => env.s = val,
         Message::RChanged(val) => env.r = val,
     }
+}
+
+fn env_slider<'a>(val: f32, msg: impl Fn(f32) -> Message + 'a, label: &str) -> Column<'a, Message> {
+    column![
+        vertical_slider(0.0..=1., val, msg).height(200).step(0.01),
+        text(format!("{label}: {val:.2}"))
+    ]
 }
