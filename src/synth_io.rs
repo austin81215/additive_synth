@@ -4,10 +4,10 @@ use midir::{ConnectError, ConnectErrorKind, MidiInput, MidiInputConnection};
 use midly::{live::LiveEvent, MidiMessage};
 use rodio::{OutputStream, OutputStreamHandle};
 
-use crate::{enveloped_source::EnvelopedSource, harmonics_source::HarmonicsSource, midi_controllable::{KeyPress, MidiControllable}, threadsafe_controllable::ThreadsafeControllable};
+use crate::{harmonics_source::HarmonicsSource, synth_core::SynthCore, threadsafe_controllable::ThreadsafeControllable, traits::{KeyPress, MidiControllable}};
 
 pub struct Synth {
-    pub source: ThreadsafeControllable<EnvelopedSource<HarmonicsSource>>,
+    pub threadsafe_source: ThreadsafeControllable<SynthCore<HarmonicsSource>>,
     output_stream: Option<OutputStream>,
     output_handle: Option<OutputStreamHandle>,
     midi_connection: Option<MidiInputConnection<()>>
@@ -16,7 +16,7 @@ pub struct Synth {
 impl Synth {
     fn new() -> Self {
         Synth{
-            source: ThreadsafeControllable::new(EnvelopedSource::new(HarmonicsSource::new(5))),
+            threadsafe_source: ThreadsafeControllable::new(SynthCore::new(HarmonicsSource::new(5))),
             output_stream: None,
             output_handle: None,
             midi_connection: None
@@ -26,7 +26,7 @@ impl Synth {
     fn connect_to_default_audio(&mut self) -> Result<(), Box<dyn Error>> {
         let (stream, handle) = OutputStream::try_default()?;
         (self.output_stream, self.output_handle) = (Some(stream), Some(handle));
-        self.output_handle.as_ref().unwrap().play_raw(self.source.clone())?;
+        self.output_handle.as_ref().unwrap().play_raw(self.threadsafe_source.clone())?;
         Ok(())
     }
 
@@ -37,7 +37,7 @@ impl Synth {
             return Err(Box::new(ConnectError::new(ConnectErrorKind::InvalidPort, "no midi device connected")));
         }
 
-        let mut callback_src = self.source.clone();
+        let mut callback_src = self.threadsafe_source.clone();
         let connection = midi_in.connect(
             &ports[0],
             "synth_port",

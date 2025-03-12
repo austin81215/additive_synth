@@ -1,6 +1,6 @@
 use iced::widget::{column, row, text, vertical_slider, Column, Row};
 
-use crate::synth::Synth;
+use crate::synth_io::Synth;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -11,23 +11,22 @@ pub enum Message {
 }
 
 pub fn view(synth: &Synth) -> Row<Message> {
-    // TODO: need a better way to get synth components
-    let env = synth.source.source.lock().unwrap(); 
+    let core = synth.threadsafe_source.contents.lock().unwrap(); 
     row![
-        env_slider(env.a, Message::AChanged, "A"),
-        env_slider(env.d, Message::DChanged, "D"),
-        env_slider(env.s, Message::SChanged, "S"),
-        env_slider(env.r, Message::RChanged, "R"),
+        env_slider(core.envelope.a, Message::AChanged, "A"),
+        env_slider(core.envelope.d, Message::DChanged, "D"),
+        env_slider(core.envelope.s, Message::SChanged, "S"),
+        env_slider(core.envelope.r, Message::RChanged, "R"),
     ].spacing(50).into()
 }
 
 pub fn update(synth: &mut Synth, message: Message) {
-    let mut env = synth.source.source.lock().unwrap();
+    let mut core = synth.threadsafe_source.contents.lock().unwrap();
     match message {
-        Message::AChanged(val) => env.a = val,
-        Message::DChanged(val) => env.d = val,
-        Message::SChanged(val) => env.s = val,
-        Message::RChanged(val) => env.r = val,
+        Message::AChanged(val) => core.envelope.a = val,
+        Message::DChanged(val) => core.envelope.d = val,
+        Message::SChanged(val) => core.envelope.s = val,
+        Message::RChanged(val) => core.envelope.r = val,
     }
 }
 

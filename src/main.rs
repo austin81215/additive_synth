@@ -1,11 +1,12 @@
 mod osc;
-mod midi_controllable;
-mod enveloped_source;
+mod traits;
+mod envelope;
 mod utils;
 mod threadsafe_controllable;
-mod synth;
+mod synth_io;
 mod view;
 mod harmonics_source;
+mod synth_core;
 
 fn main() {
     iced::run("additive synth", view::update, view::view)

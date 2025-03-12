@@ -1,7 +1,7 @@
 use midly::num::u7;
 use rodio::Source;
 
-use crate::{midi_controllable::{MidiControllable, KeyPress}, osc::SineOsc, utils::midi_to_hz};
+use crate::{osc::SineOsc, traits::{KeyPress, MidiControllable}, utils::midi_to_hz};
 
 pub struct HarmonicsSource {
     harmonics: Vec<(SineOsc, f32)>
