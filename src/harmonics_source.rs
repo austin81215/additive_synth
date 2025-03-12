@@ -12,8 +12,8 @@ impl HarmonicsSource {
         HarmonicsSource { harmonics: vec![(SineOsc::new(440.), 1.); num_harmonics] }
     }
 
-    pub fn get_harmonic(&self, i: usize) -> f32{
-        self.harmonics[i].1
+    pub fn harmonics(&self) -> impl Iterator<Item = f32> + '_ {
+        self.harmonics.iter().map(|(_osc, vol)| *vol)
     }
 
     pub fn set_harmonic(&mut self, i: usize, vol: f32) {

@@ -16,7 +16,7 @@ pub struct Synth {
 impl Synth {
     fn new() -> Self {
         Synth{
-            threadsafe_source: ThreadsafeControllable::new(SynthCore::new(HarmonicsSource::new(5))),
+            threadsafe_source: ThreadsafeControllable::new(SynthCore::new(HarmonicsSource::new(10))),
             output_stream: None,
             output_handle: None,
             midi_connection: None
