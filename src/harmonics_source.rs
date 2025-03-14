@@ -42,7 +42,7 @@ impl Source for HarmonicsSource {
     }
 
     fn sample_rate(&self) -> u32 {
-        4800
+        48000
     }
 
     fn total_duration(&self) -> Option<std::time::Duration> {

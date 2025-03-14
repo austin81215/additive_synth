@@ -43,7 +43,7 @@ impl Source for SineOsc {
     }
 
     fn sample_rate(&self) -> u32 {
-        4800
+        48000
     }
 
     fn total_duration(&self) -> Option<std::time::Duration> {
