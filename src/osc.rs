@@ -20,7 +20,7 @@ impl SineOsc {
 
     pub fn start_freq(&mut self, freq: f32, velocity: u7) {
         self.freq = freq;
-        self.volume = velocity.as_int() as f32;
+        self.volume = (velocity.as_int() as f32) / (u7::max_value().as_int() as f32);
     }
 }
 
