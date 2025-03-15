@@ -1,6 +1,6 @@
 # A Standalone Desktop Additive Synth
 
-This is a side project i am working on, it is a continuation/redesign of a previous project of mine. The end goal is to have it be a full polyphonic additive synth, since additive synths are super cool and there aren't enough of them around. Currently, it is just a sine wave with an ADSR envelope.
+This is a side project i am working on, it is a continuation/redesign of a previous project of mine. The end goal is to have it be a full polyphonic additive synth, since additive synths are super cool and there aren't enough of them around. Currently, it is only monophonic, and only has harmonics and an ADSR envelope.
 
 ## To Use:
 
