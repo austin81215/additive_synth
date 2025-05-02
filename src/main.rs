@@ -8,6 +8,7 @@ mod view;
 mod harmonics_source;
 mod synth_core;
 
+/// starts the gui
 fn main() {
     iced::run("additive synth", view::update, view::view)
         .expect("failed to start the gui");

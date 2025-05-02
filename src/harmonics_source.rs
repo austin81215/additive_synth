@@ -3,19 +3,23 @@ use rodio::Source;
 
 use crate::{osc::SineOsc, traits::{KeyPress, MidiControllable}, utils::midi_to_hz};
 
+/// a mono source made of layered sine waves
 pub struct HarmonicsSource {
     harmonics: Vec<(SineOsc, f32)>
 }
 
 impl HarmonicsSource {
+    /// a new HarmonicsSource with the given number of harmonics
     pub fn new(num_harmonics: usize) -> Self {
         HarmonicsSource { harmonics: vec![(SineOsc::new(440.), 1.); num_harmonics] }
     }
 
+    /// the volume of each harmonic from lowest to highest, from 0 (silent) to 1 (full)
     pub fn harmonics(&self) -> impl Iterator<Item = f32> + '_ {
         self.harmonics.iter().map(|(_osc, vol)| *vol)
     }
 
+    /// sets the ith harmonic to the given volume, from 0 (silent) to 1 (full)
     pub fn set_harmonic(&mut self, i: usize, vol: f32) {
         self.harmonics[i].1 = vol;
     }

@@ -6,6 +6,8 @@ use rodio::{OutputStream, OutputStreamHandle};
 
 use crate::{harmonics_source::HarmonicsSource, synth_core::SynthCore, threadsafe_controllable::ThreadsafeControllable, traits::{KeyPress, MidiControllable}};
 
+/// a synth that interacts with the outside world, taking MIDI input and outputting sound.
+/// currently just connects to the default MIDI and sound on startup.
 pub struct Synth {
     pub threadsafe_source: ThreadsafeControllable<SynthCore<HarmonicsSource>>,
     output_stream: Option<OutputStream>,

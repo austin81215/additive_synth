@@ -2,6 +2,7 @@ use iced::widget::{column, row, text, vertical_slider, Column, Row};
 
 use crate::synth_io::Synth;
 
+/// a message sent by the gui
 #[derive(Debug, Clone)]
 pub enum Message {
     AChanged(f32),
@@ -11,6 +12,7 @@ pub enum Message {
     HarmonicChanged(usize, f32)
 }
 
+/// render the gui
 pub fn view(synth: &Synth) -> Column<Message> {
     let core = synth.threadsafe_source.contents.lock().unwrap(); 
     column![
@@ -29,6 +31,7 @@ pub fn view(synth: &Synth) -> Column<Message> {
     ]
 }
 
+/// handle gui messages
 pub fn update(synth: &mut Synth, message: Message) {
     let mut core = synth.threadsafe_source.contents.lock().unwrap();
     match message {
@@ -40,6 +43,8 @@ pub fn update(synth: &mut Synth, message: Message) {
     }
 }
 
+/// a slider that is part of an envelope, with a current value, text label,
+/// and message to send when slid
 fn env_slider<'a>(val: f32, msg: impl Fn(f32) -> Message + 'a, label: &str) -> Column<'a, Message> {
     column![
         vertical_slider(0.0..=1., val, msg).height(200).step(0.01),
@@ -47,6 +52,8 @@ fn env_slider<'a>(val: f32, msg: impl Fn(f32) -> Message + 'a, label: &str) -> C
     ]
 }
 
+/// a slider that controls a harmonic, 
+/// with a number for which harmonic it is and a current value
 fn harmonic_slider<'a>(harmonic: usize, val: f32) -> Column<'a, Message> {
     column![
         vertical_slider(0.0..=1., val, 

@@ -3,6 +3,9 @@ use rodio::Source;
 
 use crate::{envelope::Envelope, traits::{KeyPress, MidiControllable, SynthComponent}};
 
+/// a controllable source and an ADSR envelope that are controllable in sync 
+/// (starting notes controls both the pitch and volume of the oscillator
+/// and the state of the envelope)
 pub struct SynthCore<T> where 
 T: MidiControllable + Source,
 T: Iterator<Item = f32> {
@@ -13,6 +16,7 @@ T: Iterator<Item = f32> {
 impl<T> SynthCore<T> where 
 T: MidiControllable + Source,
 T: Iterator<Item = f32> {
+    /// wraps the given source in a SynthCore
     pub fn new(source: T) -> Self {
         SynthCore { source, envelope: Envelope::new() }
     }

@@ -14,10 +14,12 @@ pub struct SineOsc {
 }
 
 impl SineOsc {
+    /// a new SineOsc with the given frequency
     pub fn new(freq: f32) -> SineOsc {
         SineOsc{freq, phase: 0., volume: 0.}
     }
 
+    /// sets the frequency and volume of the oscillator
     pub fn start_freq(&mut self, freq: f32, velocity: u7) {
         self.freq = freq;
         self.volume = (velocity.as_int() as f32) / (u7::max_value().as_int() as f32);

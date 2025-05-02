@@ -1,6 +1,7 @@
 use midly::num::u7;
 use crate::{traits::{KeyPress, MidiControllable, SynthComponent}, utils::lerp};
 
+/// an ADSR envelope
 pub struct Envelope {
     pub a: f32,
     pub d: f32,
@@ -10,6 +11,9 @@ pub struct Envelope {
     current_note: KeyPress,
 }
 
+/// the state of an envelope. can either be Off, Playing(A, D, S), or Releasing (R).
+/// t is the time it has been in that state, and start_level is the volume (0-1) that 
+/// it started that state from.
 enum EnvState {
     Off,
     Playing{t: f32, start_level: f32},
@@ -17,6 +21,7 @@ enum EnvState {
 }
 
 impl Envelope {
+    /// create a new envelope with A = D = R = 0 and S = 1
     pub fn new() -> Self {
         Envelope{a: 0.,
             d: 0., 
@@ -27,6 +32,7 @@ impl Envelope {
         }
     }
 
+    /// the current volume of the envelope, from 0 (silent) to 1 (full)
     fn amplitude(&self) -> f32{
         match self.state { // use position in envelope to find amplitude
             EnvState::Off => 0.,

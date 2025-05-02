@@ -5,6 +5,7 @@ use rodio::Source;
 
 use crate::traits::MidiControllable;
 
+/// a threadsafe wrapper of a controllable source
 pub struct ThreadsafeControllable<T> where
 T: MidiControllable + Source,
 T: Iterator<Item = f32> {
@@ -14,6 +15,7 @@ T: Iterator<Item = f32> {
 impl<T> ThreadsafeControllable<T> where
 T: MidiControllable + Source,
 T: Iterator<Item = f32> {
+    /// puts the given source in a threadsafe wrapper
     pub fn new(source: T) -> Self {
         ThreadsafeControllable{contents: Arc::new(Mutex::new(source))}
     }
