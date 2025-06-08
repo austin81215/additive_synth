@@ -14,6 +14,11 @@ impl HarmonicsSource {
         HarmonicsSource { harmonics: vec![(SineOsc::new(440.), 1.); num_harmonics] }
     }
 
+    /// the source's number of total harmonics
+    pub fn num_harmonics(&self) -> usize {
+        self.harmonics.len()
+    }
+
     /// the volume of each harmonic from lowest to highest, from 0 (silent) to 1 (full)
     pub fn harmonics(&self) -> impl Iterator<Item = f32> + '_ {
         self.harmonics.iter().map(|(_osc, vol)| *vol)
@@ -22,6 +27,15 @@ impl HarmonicsSource {
     /// sets the ith harmonic to the given volume, from 0 (silent) to 1 (full)
     pub fn set_harmonic(&mut self, i: usize, vol: f32) {
         self.harmonics[i].1 = vol;
+    }
+
+    /// sets the source's harmonics to the values given in the vector, from lowest to highest pitch.
+    /// note that if this source has more or less harmonics than the given vector, 
+    /// the method will stop at the end of the shorter list.
+    pub fn set_harmonics(&mut self, harmonics: Vec<f32>) {
+        for (harmonic, vol) in self.harmonics.iter_mut().zip(harmonics) {
+            harmonic.1 = vol;
+        }
     }
 }
 

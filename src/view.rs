@@ -1,6 +1,6 @@
-use iced::widget::{column, row, text, vertical_slider, Column, Row};
+use iced::widget::{column, pick_list, row, text, vertical_slider, Column, Row};
 
-use crate::synth_io::Synth;
+use crate::{synth_io::Synth, utils::{preset_harmonics, Preset, PRESETS}};
 
 /// a message sent by the gui
 #[derive(Debug, Clone)]
@@ -9,12 +9,19 @@ pub enum Message {
     DChanged(f32),
     SChanged(f32),
     RChanged(f32),
-    HarmonicChanged(usize, f32)
+    HarmonicChanged(usize, f32),
+    PresetPicked(Preset)
+}
+
+#[derive(Default)]
+pub struct State {
+    synth: Synth,
+    current_preset: Option<Preset>
 }
 
 /// render the gui
-pub fn view(synth: &Synth) -> Column<Message> {
-    let core = synth.threadsafe_source.contents.lock().unwrap(); 
+pub fn view(state: &State) -> Column<Message> {
+    let core = state.synth.threadsafe_source.contents.lock().unwrap(); 
     column![
         row![
             env_slider(core.envelope.a, Message::AChanged, "Attack"),
@@ -27,19 +34,30 @@ pub fn view(synth: &Synth) -> Column<Message> {
             core.source.harmonics()
                 .enumerate()
                 .map(|(harmonic, val)| harmonic_slider(harmonic, val).into())
-        ).spacing(50)
+        ).spacing(50),
+
+        row![
+            text("Preset Waveforms:"),
+            pick_list(PRESETS, state.current_preset.clone(), Message::PresetPicked)
+            .placeholder("Presets...")
+        ]
     ]
 }
 
 /// handle gui messages
-pub fn update(synth: &mut Synth, message: Message) {
-    let mut core = synth.threadsafe_source.contents.lock().unwrap();
+pub fn update(state: &mut State, message: Message) {
+    let mut core = state.synth.threadsafe_source.contents.lock().unwrap();
     match message {
         Message::AChanged(val) => core.envelope.a = val,
         Message::DChanged(val) => core.envelope.d = val,
         Message::SChanged(val) => core.envelope.s = val,
         Message::RChanged(val) => core.envelope.r = val,
         Message::HarmonicChanged(harmonic, val) => core.source.set_harmonic(harmonic, val),
+        Message::PresetPicked(preset) => {
+            state.current_preset = Some(preset.clone());
+            let num_harmonics = core.source.num_harmonics();
+            core.source.set_harmonics(preset_harmonics(preset, num_harmonics));
+        },
     }
 }
 
